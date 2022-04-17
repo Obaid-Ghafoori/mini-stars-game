@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import logicUtils from '../utils/logicUtils.js';
 import colors from '../utils/colors.js';
 // import { StarsStyle } from './Stars.css';
@@ -10,6 +10,17 @@ const StarMatch = () => {
     const [stars, setStars] = useState(logicUtils.random(1, 9));
     const [availableNums, setAvailableNums] = useState(logicUtils.range(1, 9));
     const [candidateNums, setCandidateNums] = useState([]);
+    const [secondsLeft, setSecondsLeft] = useState(10);
+
+
+    useEffect(() => {
+        if (secondsLeft > 0 && availableNums.length > 0) {
+            const timerId = setTimeout(() => {
+                setSecondsLeft(secondsLeft - 1);
+            }, 1000);
+            return () => clearTimeout(timerId);
+        }
+    });
 
     const StarsDisplay = props => (
         <>
@@ -23,20 +34,30 @@ const StarMatch = () => {
         <button
             className="number"
             style={{ backgroundColor: colors[props.status] }}
-            onClick={() => props.onClick(props.number, props.status)}>
+            onClick={() => props.onClick(props.number, props.status)}
+        >
             {props.number}
         </button>
     );
 
-
-    const PlayAgain = (props) => (
+    const PlayAgain = props => (
         <div className="game-done">
+            <div
+                className="message"
+                style={{ color: props.gameStatus === 'lost' ? 'red' : 'green' }}
+            >
+                {props.gameStatus === 'lost' ? 'Game Over' : 'Congrats!'}
+            </div>
             <button onClick={props.onClick}>Play Again</button>
         </div>
     );
 
     const candidatesAreWrong = logicUtils.sum(candidateNums) > stars;
-    const gameIsDone = availableNums.length === 0;
+
+
+    const gameStatus = availableNums.length === 0
+        ? 'won'
+        : secondsLeft === 0 ? 'lost' : 'active'  
 
     const resetGame = () => {
         setStars(logicUtils.random(1, 9));
@@ -57,7 +78,7 @@ const StarMatch = () => {
 
     const onNumberClick = (number, currentStatus) => {
         //once the number is clicked, we can't used/click it again
-        if (currentStatus === 'used') {
+        if (gameStatus !== 'active' || currentStatus === 'used') {
             return;
         }
 
@@ -97,25 +118,24 @@ const StarMatch = () => {
             </div>
             <div className="body">
                 <div className="left">
-                    {gameIsDone ? (
-                        <PlayAgain onClick={resetGame} /> //if the game is done, we need to reset the game using reset button
+                    {gameStatus !== 'active' ? (
+                        <PlayAgain onClick={resetGame} gameStatus={gameStatus} />
                     ) : (
                         <StarsDisplay count={stars} />
                     )}
-
                 </div>
                 <div className="right">
-                    {logicUtils.range(1, 9).map(number =>
+                    {logicUtils.range(1, 9).map(number => (
                         <PlayNumber
                             key={number}
-                            status={NumberStatus(number)} //pass status propety to cumpute the mocked data status that is placeed in the state
+                            status={NumberStatus(number)}
                             number={number}
                             onClick={onNumberClick}
                         />
-                    )}
+                    ))}
                 </div>
             </div>
-            <div className="timer">Time Remaining: 10</div>
+            <div className="timer">Time Remaining: {secondsLeft}</div>
         </div>
     );
 };

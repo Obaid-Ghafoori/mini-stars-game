@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import logicUtils from '../utils/logicUtils.js';
+import colors from '../utils/colors.js';
 // import { StarsStyle } from './Stars.css';
 import { StarsStyle } from '../static/styles/Stars.css';
 // \src\utils\logicUtils.js stars-game\..\static\styles\stars.scss
@@ -7,7 +8,10 @@ import { StarsStyle } from '../static/styles/Stars.css';
 
 const StarMatch = () => {
     const PlayNumber = props => (
-        <button className="number" onClick={() => console.log('Num', props.number)}>
+        <button
+            className="number"
+            style={{ backgroundColor: colors[props.status] }}
+            onClick={() => console.log('Num', props.number)}>
             {props.number}
         </button>
     );
@@ -21,6 +25,21 @@ const StarMatch = () => {
     );
 
     const [stars, setStars] = useState(logicUtils.random(1, 9));
+    const [availableNums, setAvailableNums] = useState([1,2,3,4,5]);
+    const [candidateNums, setCandidateNums] = useState([2,3]);
+
+    const candidatesAreWrong = logicUtils.sum(candidateNums) > stars;
+    const NumberStatus = (number) => { 
+        if (!availableNums.includes(number)) {
+            return 'used';
+        }
+        if (candidateNums.includes(number)) {
+            return candidatesAreWrong ? 'wrong' : 'candidate';
+        }
+        return 'available';
+
+    };
+
     return (
         <div className="game">
             <div className="help">
@@ -32,7 +51,11 @@ const StarMatch = () => {
                 </div>
                 <div className="right">
                     {logicUtils.range(1, 9).map(number =>
-                        <PlayNumber key={number} number={number} />
+                        <PlayNumber
+                            status={NumberStatus(number)} //pass status propety to cumpute the mocked data status that is placeed in the state
+                            key={number}
+                            number={number}
+                        />
                     )}
                 </div>
             </div>

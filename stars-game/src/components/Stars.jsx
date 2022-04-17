@@ -7,6 +7,9 @@ import { StarsStyle } from '../static/styles/Stars.css';
 
 
 const StarMatch = () => {
+    const [stars, setStars] = useState(logicUtils.random(1, 9));
+    const [availableNums, setAvailableNums] = useState(logicUtils.range(1, 9));
+    const [candidateNums, setCandidateNums] = useState([]);
 
     const StarsDisplay = props => (
         <>
@@ -26,11 +29,20 @@ const StarMatch = () => {
     );
 
 
-    const [stars, setStars] = useState(logicUtils.random(1, 9));
-    const [availableNums, setAvailableNums] = useState(logicUtils.range(1, 9));
-    const [candidateNums, setCandidateNums] = useState([]);
+    const PlayAgain = (props) => (
+        <div className="game-done">
+            <button onClick={props.onClick}>Play Again</button>
+        </div>
+    );
 
     const candidatesAreWrong = logicUtils.sum(candidateNums) > stars;
+    const gameIsDone = availableNums.length === 0;
+
+    const resetGame = () => {
+        setStars(logicUtils.random(1, 9));
+        setAvailableNums(logicUtils.range(1, 9));
+        setCandidateNums([]);
+    };
 
     const NumberStatus = (number) => {
         if (!availableNums.includes(number)) {
@@ -77,6 +89,7 @@ const StarMatch = () => {
             setCandidateNums([]);
         }
     };
+
     return (
         <div className="game">
             <div className="help">
@@ -84,13 +97,18 @@ const StarMatch = () => {
             </div>
             <div className="body">
                 <div className="left">
-                    <StarsDisplay count={stars} />
+                    {gameIsDone ? (
+                        <PlayAgain onClick={resetGame} /> //if the game is done, we need to reset the game using reset button
+                    ) : (
+                        <StarsDisplay count={stars} />
+                    )}
+
                 </div>
                 <div className="right">
                     {logicUtils.range(1, 9).map(number =>
                         <PlayNumber
-                            status={NumberStatus(number)} //pass status propety to cumpute the mocked data status that is placeed in the state
                             key={number}
+                            status={NumberStatus(number)} //pass status propety to cumpute the mocked data status that is placeed in the state
                             number={number}
                             onClick={onNumberClick}
                         />

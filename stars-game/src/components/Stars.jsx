@@ -7,14 +7,6 @@ import { StarsStyle } from '../static/styles/Stars.css';
 
 
 const StarMatch = () => {
-    const PlayNumber = props => (
-        <button
-            className="number"
-            style={{ backgroundColor: colors[props.status] }}
-            onClick={() => console.log('Num', props.number)}>
-            {props.number}
-        </button>
-    );
 
     const StarsDisplay = props => (
         <>
@@ -24,12 +16,23 @@ const StarMatch = () => {
         </>
     );
 
+    const PlayNumber = props => (
+        <button
+            className="number"
+            style={{ backgroundColor: colors[props.status] }}
+            onClick={() => props.onClick(props.number, props.status)}>
+            {props.number}
+        </button>
+    );
+
+
     const [stars, setStars] = useState(logicUtils.random(1, 9));
-    const [availableNums, setAvailableNums] = useState([1,2,3,4,5]);
-    const [candidateNums, setCandidateNums] = useState([2,3]);
+    const [availableNums, setAvailableNums] = useState(logicUtils.range(1, 9));
+    const [candidateNums, setCandidateNums] = useState([]);
 
     const candidatesAreWrong = logicUtils.sum(candidateNums) > stars;
-    const NumberStatus = (number) => { 
+
+    const NumberStatus = (number) => {
         if (!availableNums.includes(number)) {
             return 'used';
         }
@@ -40,6 +43,40 @@ const StarMatch = () => {
 
     };
 
+    const onNumberClick = (number, currentStatus) => {
+        //once the number is clicked, we can't used/click it again
+        if (currentStatus === 'used') {
+            return;
+        }
+
+        //if the number is available which is not used, we can click it we can make 
+        //it candidate number by adding it to the existing candidate number array
+        const newCandidateNums =
+            currentStatus === 'available'
+                ? candidateNums.concat(number)
+                : candidateNums.filter(existingCandidatNum => existingCandidatNum !== number); //keep all the candidate nums except the number that was clicked
+
+
+        //check if the sum of the candidate number is not equal to the count of stars
+        // then we dont have a correct answer and we just need to mark it as candidate numbers
+        if (logicUtils.sum(newCandidateNums) !== stars) {
+            setCandidateNums(newCandidateNums);
+
+        } else {
+            //if the sum of the candidate number is equal to the count of stars then we have a correct answer
+            // all candidate numbers should be removed from the available numbers array if the num exists in new candidate nums
+            // in other words it should be marked as a used
+            // and reset the candidate number array to empty array 
+            // redraw the stars from what is left in the available numbers array
+            const newAvailableNums = availableNums.filter(
+                num => !newCandidateNums.includes(num)
+            );
+
+            setStars(logicUtils.randomSumIn(newAvailableNums, 9));
+            setAvailableNums(newAvailableNums);
+            setCandidateNums([]);
+        }
+    };
     return (
         <div className="game">
             <div className="help">
@@ -55,6 +92,7 @@ const StarMatch = () => {
                             status={NumberStatus(number)} //pass status propety to cumpute the mocked data status that is placeed in the state
                             key={number}
                             number={number}
+                            onClick={onNumberClick}
                         />
                     )}
                 </div>

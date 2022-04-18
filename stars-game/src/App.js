@@ -1,13 +1,11 @@
-import logo from './logo.svg';
-import './App.css';
-import StarMatch from './components/Stars';
+import Stars from './static/styles/Stars.css';
+import Game from './components/Game';
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-          <StarMatch/>  
-  
+        <Game />
       </header>
     </div>
   );

@@ -29,6 +29,7 @@
 .star {
 	display: inline-block;
   margin: 0 15px;
+  color: goldenrod;
 }
 
 .star:after {
@@ -43,6 +44,7 @@
   height: 45px;
   margin: 10px;
   font-size: 25px;
+  border-radius: 30px;
 }
 
 .number:focus, .number:active {
@@ -61,3 +63,20 @@
   font-weight: bold;
   margin: 15px;
 }
+
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+
